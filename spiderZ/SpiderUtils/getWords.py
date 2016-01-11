@@ -20,28 +20,21 @@ class GetWords:
 
     @staticmethod
     def getAll(url):
-        html = GetWords.getChinese(url)
-        GetWords.getEnglish(url)
+        html = GetWords.__getContent(url);
+        GetWords.getChinese(url, html)
+        GetWords.getEnglish(url, html)
         return html
 
     @staticmethod
-    def getChinese(url):
-        html = ""
+    def getChinese(url, html = None):
+        if(html is None):
+            html = GetWords.__getContent(url)
         try:
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}
-            req = urllib2.Request(url=url, headers=headers)
-            html = urllib2.urlopen(req).read()
             words = GetWords.__getChinese(html)
-            print url
             Write.write(url, words)
-            # for w in words:
-            #   print w.decode("utf-8", "ignore")
         except Exception, e:
             print url
             print e
-            pass
-        return html
 
     @staticmethod
     def getEnglish(url):
@@ -54,3 +47,12 @@ class GetWords:
         html = unicode(html, codec['encoding'])
         words = re.findall(ur"[\u4e00-\u9fa5]+", html)
         return words
+
+    @staticmethod
+    def __getContent(url):
+        print url
+        headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}
+        req = urllib2.Request(url=url, headers=headers)
+        html = urllib2.urlopen(req).read()
+        return html
