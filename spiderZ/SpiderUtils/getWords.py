@@ -26,8 +26,8 @@ class GetWords:
         return html
 
     @staticmethod
-    def getChinese(url, html = None):
-        if(html is None):
+    def getChinese(url, html=None):
+        if (html is None):
             html = GetWords.__getContent(url)
         try:
             words = GetWords.__getChinese(html)
@@ -37,7 +37,7 @@ class GetWords:
             print e
 
     @staticmethod
-    def getEnglish(url):
+    def getEnglish(url, html=None):
         html = ""
         return html
 
@@ -52,7 +52,7 @@ class GetWords:
     def __getContent(url):
         print url
         headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}
+            'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}
         req = urllib2.Request(url=url, headers=headers)
         html = urllib2.urlopen(req).read()
         return html
