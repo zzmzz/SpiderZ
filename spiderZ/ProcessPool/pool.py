@@ -1,10 +1,19 @@
-class Pool:
-    cache_key = 'POOLCOUNT'
+from PyMemcached.memcacheUtil import MemcacheUtil
+from Const import cacheKeyConstants
+from multiprocessing.pool import Pool
+from multiprocessing import Manager
+import sys
+sys.argv=[]
+class PyPool:
     limit = 4
 
     @staticmethod
-    def pool_limit(count):
-        if (count + 1 > Pool.limit):
-            return False
-        else:
-            return True
+    def get_instance():
+        if __name__ == '__main__':
+            m = Manager()
+        v = m.dict()
+        assert isinstance(v, dict)
+        v[cacheKeyConstants.PROCESSPOOLKEY]=Pool(PyPool.limit)
+        return v
+
+

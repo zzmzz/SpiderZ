@@ -21,8 +21,3 @@ class MemcacheUtil:
         return mc.delete(key)
 
 
-a = MemcacheUtil.get("a")
-b = MemcacheUtil.add("a", 1)
-c = MemcacheUtil.delete("a")
-d = MemcacheUtil.set("a","1")
-e = 1

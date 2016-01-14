@@ -3,15 +3,14 @@
 from SpiderUtils.getWords import GetWords
 from getUrls import UrlScan
 from urlparse import *
-import threadpool
 from spiderStrategy import SpiderStrategy
 from enums import Language
+from ProcessPool.pool import PyPool
+from Const import cacheKeyConstants
 
-pool = threadpool.ThreadPool(10)
 
-
-def Son_Spider(strategy):
-    s = Spider(strategy)  # 递归调用
+def Son_Spider(p, strategy):
+    s = Spider(p, strategy)  # 递归调用
     s.get_all_words()
 
 
@@ -21,12 +20,14 @@ class Spider():
     __depth = 1
     __pattern = None
     __language = Language.All
+    __pypool = None
 
-    def __init__(self, strategy=SpiderStrategy()):
+    def __init__(self, ppool, strategy=SpiderStrategy()):
         self.__isout = strategy.is_out
         self.__url = strategy.url
         self.__depth = strategy.depth
         self.__language = strategy.language
+        self.__pypool = ppool
         pattern = strategy.pattern
         if (pattern == None):
             if (strategy.is_out == False):
@@ -41,10 +42,9 @@ class Spider():
         html = GetWords.getWords(self.__url, Language.All)
         if (self.__depth > 1):
             list = UrlScan.scanpage(html, self.__url, self.__isout, self.__pattern)
-            arglist = []
             for link in list:
-                arg = ([SpiderStrategy(link, self.__depth - 1, self.__isout, self.__pattern, self.__language)], {})
-                arglist.append(arg)
-            requests = threadpool.makeRequests(Son_Spider, arglist)
-            [pool.putRequest(req) for req in requests]
-            pool.wait()
+                arg = (
+                    [self.__pypool[cacheKeyConstants.PROCESSPOOLKEY],
+                     SpiderStrategy(link, self.__depth - 1, self.__isout, self.__pattern, self.__language)],
+                    {})
+                self.__pypool.value.apply_async(Son_Spider, arg)

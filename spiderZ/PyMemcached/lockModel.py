@@ -5,8 +5,9 @@ import time
 import memcache
 
 
-class lockModel:
+class LockModel:
     __metaclass__ = ABCMeta
+
     __lock_key = "WRITEKEY"
 
     def lock_and_do(self):
@@ -16,8 +17,11 @@ class lockModel:
                 count = MemcacheUtil.get(Pool.cache_key)
                 if (Pool.pool_limit(count)):
                     MemcacheUtil.set(Pool.cache_key, count + 1)
-                    self.do()
+                    result = self.do()
                     MemcacheUtil.delete(self.__lock_key)
+
+                    if(result!=False):
+                        return result
                 else:
                     time.sleep(0.1)
                     continue
@@ -25,6 +29,8 @@ class lockModel:
                 time.sleep(0.1)
                 continue
 
+
     @abstractmethod
     def do(self):
         pass
+
