@@ -30,7 +30,7 @@ class Spider:
             self.__pattern = pattern
 
     def get_all_words(self, queue, lock):
-        html = GetWords.getWords(self.__url, Language.All)
+        html = GetWords.getWords(self.__url, self.__language)
         if (self.__depth > 1):
             urllist = UrlScan.scanpage(html, self.__url, self.__isout, self.__pattern)
             for link in urllist:
