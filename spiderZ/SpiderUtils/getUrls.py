@@ -3,16 +3,14 @@
 from bs4 import BeautifulSoup
 import time, re, urllib2
 from urlparse import *
-from bloomFilter import Bloom_Filter
+from PyMemcached.Locks.bloomFilterLock import BloomFilterLock
 
 
 class UrlScan:
-    URLPOOL = Bloom_Filter()
-
     @staticmethod
     def scanpage(html, url, isout, pattern=None):
         try:
-            UrlScan.URLPOOL.mark_value(url)
+            BloomFilterLock(url).lock_and_do()
             results = []
             n = 0
             soup = BeautifulSoup(html, "lxml")
@@ -24,10 +22,7 @@ class UrlScan:
                 pageurls = soup.find_all("a", href=re.compile('http'))
             for link in pageurls:
                 u = link.get("href")
-                if (UrlScan.URLPOOL.exists(u)):
-                    continue
-                else:
-                    UrlScan.URLPOOL.mark_value(u)
+                if (BloomFilterLock(link).lock_and_do()):
                     results.append(u)
             return results
         except Exception, e:

@@ -20,4 +20,6 @@ class MemcacheUtil:
     def delete(key):
         return mc.delete(key)
 
-
+    @staticmethod
+    def clean():
+        return mc.flush_all()

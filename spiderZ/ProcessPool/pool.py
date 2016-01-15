@@ -1,19 +1,21 @@
-from PyMemcached.memcacheUtil import MemcacheUtil
-from Const import cacheKeyConstants
 from multiprocessing.pool import Pool
 from multiprocessing import Manager
-import sys
-sys.argv=[]
 class PyPool:
     limit = 4
 
     @staticmethod
-    def get_instance():
-        if __name__ == '__main__':
-            m = Manager()
-        v = m.dict()
-        assert isinstance(v, dict)
-        v[cacheKeyConstants.PROCESSPOOLKEY]=Pool(PyPool.limit)
-        return v
+    def get_queue():
+        m = Manager()
+        q = m.Queue()
+        return q
 
+    @staticmethod
+    def get_pool():
+        return Pool(PyPool.limit)
+
+    @staticmethod
+    def get_lock():
+        m = Manager()
+        l = m.Lock()
+        return l
 

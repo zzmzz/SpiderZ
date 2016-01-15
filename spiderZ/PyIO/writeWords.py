@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # coding=utf-8
-import re
 import pymongo
 from WordSplit.splitAdapter import SplitAdapter
 
@@ -8,6 +7,7 @@ client = pymongo.MongoClient('localhost', 27017)
 db = client.spiderDB
 collection = db.spider
 collection.remove()
+
 
 class Write():
     @staticmethod
