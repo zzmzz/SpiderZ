@@ -16,4 +16,5 @@ class BloomFilterLock(LockModel):
             return False
         else:
             pool.mark_value(self.__url)
+            MemcacheUtil.set(const.URLPOOLKEY, pool)
             return True

@@ -1,6 +1,6 @@
 import memcache
 
-mc = memcache.Client(['127.0.0.1:11211'], debug=True)
+mc = memcache.Client(['127.0.0.1:11211'])
 
 
 class MemcacheUtil:

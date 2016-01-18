@@ -22,7 +22,7 @@ class MyListener:
             loop_cnt = loop_cnt + 1 if size == 0 else 0
             for num in range(0, size):
                 strategy = queue.get_nowait()
-                self.__pool.apply_async(Spider(strategy).get_all_words, (queue, lock))
+                self.__pool.apply_async(applySpider, (strategy, queue, lock))
             lock.release()
             if (loop_cnt > 10):
                 loop_flag = False
@@ -30,3 +30,6 @@ class MyListener:
                 time.sleep(1)
         self.__pool.close()
         self.__pool.join()
+
+def applySpider(strategy, queue, lock):
+    Spider(strategy).get_all_words(queue,lock)

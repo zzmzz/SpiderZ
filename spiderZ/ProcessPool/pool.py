@@ -11,7 +11,7 @@ class PyPool:
 
     @staticmethod
     def get_pool():
-        return Pool(PyPool.limit)
+        return Pool(processes=PyPool.limit)
 
     @staticmethod
     def get_lock():
