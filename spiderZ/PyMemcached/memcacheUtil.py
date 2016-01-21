@@ -18,7 +18,10 @@ class MemcacheUtil:
 
     @staticmethod
     def delete(key):
-        return mc.delete(key)
+        try:
+            mc.delete(key)
+        except Exception as e:
+            print e
 
     @staticmethod
     def clean():
