@@ -76,10 +76,21 @@ class Bloom_Filter():
         for func in self.hash:
             if self.container[func.hash(str(value))] == 0:
                 return False
-            return True
+        return True
 
     def mark_value(self, value):
         '''value是要标记的元素'''
         for func in self.hash:
             self.container[func.hash(str(value))] = 1
         return
+
+    # def exists_and_mark(self, value):
+    #     if value == None:
+    #         return True
+    #     for func in self.hash:
+    #         hs = func.hash(str(value))
+    #         print hs,value
+    #         if self.container[hs] == 0:
+    #             self.container[hs] = 1
+    #             return False
+    #     return True

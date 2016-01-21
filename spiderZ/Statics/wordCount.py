@@ -1,12 +1,6 @@
 from bson.code import Code
 import pymongo
 
-client = pymongo.MongoClient('localhost', 27017)
-db = client.spiderDB
-collection = db.spider
-collection.remove()
-
-
 class WordCount:
     mapper = Code("""
         function() {
@@ -26,4 +20,7 @@ class WordCount:
 
     @staticmethod
     def calc_count():
+        client = pymongo.MongoClient('localhost', 27017)
+        db = client.spiderDB
+        collection = db.spider
         collection.map_reduce(WordCount.mapper, WordCount.reducer, out="result", full_response=True)

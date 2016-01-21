@@ -22,7 +22,7 @@ class UrlScan:
                 pageurls = soup.find_all("a", href=re.compile('http'))
             for link in pageurls:
                 u = link.get("href")
-                if (BloomFilterLock(link).lock_and_do()):
+                if (BloomFilterLock(u).lock_and_do()):
                     results.append(u)
             return results
         except Exception, e:
