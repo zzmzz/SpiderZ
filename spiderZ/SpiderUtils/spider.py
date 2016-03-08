@@ -1,10 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
-from SpiderUtils.getWords import GetWords
-from getUrls import UrlScan
 from urlparse import *
-from spiderStrategy import SpiderStrategy
+
+from SpiderUtils.getWords import GetWords
+from Utils.logFactory import LogFactory
 from enums import Language
+from getUrls import UrlScan
+from spiderStrategy import SpiderStrategy
 
 
 class Spider:
@@ -13,6 +15,7 @@ class Spider:
     __depth = 1
     __pattern = None
     __language = Language.All
+    logger = LogFactory.getlogger("Spider")
 
     def __init__(self, strategy=SpiderStrategy()):
         self.__isout = strategy.is_out
@@ -34,6 +37,11 @@ class Spider:
         if (self.__depth > 1):
             urllist = UrlScan.scanpage(html, self.__url, self.__isout, self.__pattern)
             for link in urllist:
-                lock.acquire()
-                queue.put(SpiderStrategy(link, self.__depth - 1, self.__isout, self.__pattern, self.__language))
-                lock.release()
+                try:
+                    lock.acquire()
+                    self.logger.info("new strategy created:"+link)
+                    queue.put(SpiderStrategy(link, self.__depth - 1, self.__isout, self.__pattern, self.__language))
+                except Exception,e:
+                    self.logger.error(e)
+                finally:
+                    lock.release()

@@ -12,10 +12,7 @@ class UrlScan:
         try:
             BloomFilterLock(url).lock_and_do()
             results = []
-            n = 0
             soup = BeautifulSoup(html, "lxml")
-            pageurls = []
-            Upageurls = {}
             if (pattern != None):
                 pageurls = soup.find_all("a", href=re.compile(pattern))
             else:
