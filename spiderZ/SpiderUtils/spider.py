@@ -39,9 +39,10 @@ class Spider:
             for link in urllist:
                 try:
                     lock.acquire()
-                    self.logger.info("new strategy created:"+link)
+                    self.logger.info("new strategy created:" + link)
                     queue.put(SpiderStrategy(link, self.__depth - 1, self.__isout, self.__pattern, self.__language))
-                except Exception,e:
+                except Exception, e:
                     self.logger.error(e)
                 finally:
                     lock.release()
+        return

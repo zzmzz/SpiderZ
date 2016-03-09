@@ -35,19 +35,23 @@ class MyListener:
                 size = queue.qsize()
                 if size == 0:
                     loop_cnt += 1
+                    self.logger.info("loopcnt:"+str(loop_cnt))
+                    time.sleep(2)
                 else:
                     loop_cnt = 0
-                if loop_cnt > 100:
+                if loop_cnt > 30:
                     loop_flag = False
             except Exception, e:
                 self.logger.error(e)
             finally:
                 lock.release()
-                time.sleep(1)
 
         self.__pool.close()
+        self.logger.info("start to wait for all processes")
         self.__pool.join()
+        return
 
 
 def applySpider(strategy, queue, lock):
     Spider(strategy).get_all_words(queue, lock)
+    return

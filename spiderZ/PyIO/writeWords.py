@@ -5,6 +5,7 @@ from WordSplit.splitAdapter import SplitAdapter
 
 
 class Write():
+
     @staticmethod
     def clean():
         client = pymongo.MongoClient('mongodb://z:z@localhost:27017/')

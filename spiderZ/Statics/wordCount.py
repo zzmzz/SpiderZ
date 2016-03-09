@@ -1,7 +1,11 @@
 from bson.code import Code
 import pymongo
+from Utils.config import Config
+from Utils.logFactory import LogFactory
 
 class WordCount:
+    logger = LogFactory.getlogger("WordCount")
+
     mapper = Code("""
         function() {
             emit(this.content, {count: 1});
@@ -20,7 +24,10 @@ class WordCount:
 
     @staticmethod
     def calc_count():
-        client = pymongo.MongoClient('localhost', 27017)
+        WordCount.logger.info("start to count words")
+        ip = Config.getProperty('mongo', 'addr')
+        port = int(Config.getProperty('mongo', 'port'))
+        client = pymongo.MongoClient(ip, port)
         db = client.spiderDB
         collection = db.spider
         collection.map_reduce(WordCount.mapper, WordCount.reducer, out="result", full_response=True)
