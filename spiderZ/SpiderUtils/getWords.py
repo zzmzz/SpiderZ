@@ -7,7 +7,7 @@ import chardet
 from PyIO.writeWords import Write
 from enums import Language
 from Utils.logFactory import LogFactory
-
+import zlib
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -47,7 +47,10 @@ class GetWords:
         raw = html
         codec = chardet.detect(raw)
         try:
-            raw = unicode(raw, codec['encoding'], 'ignore')
+            code = codec['encoding']
+            if code is None:
+                code = 'utf-8'
+            raw = unicode(raw, code, 'ignore')
         except Exception, e:
             GetWords.logger.error(str(e))
             raise Exception, "undefined codec"
@@ -59,8 +62,12 @@ class GetWords:
     @staticmethod
     def __getContent(url):
         print url
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}
-        req = urllib2.Request(url=url)
-        html = urllib2.urlopen(req).read()
+        request = urllib2.Request(url)
+        request.add_header('Accept-encoding', 'gzip')
+        opener = urllib2.build_opener()
+        response = opener.open(request)
+        html = response.read()
+        gzipped = response.headers.get('Content-Encoding')
+        if gzipped:
+            html = zlib.decompress(html, 16+zlib.MAX_WBITS)
         return html

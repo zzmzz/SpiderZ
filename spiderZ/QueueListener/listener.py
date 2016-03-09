@@ -49,6 +49,7 @@ class MyListener:
         self.__pool.close()
         self.logger.info("start to wait for all processes")
         self.__pool.join()
+        #self.__pool.
         return
 
 
