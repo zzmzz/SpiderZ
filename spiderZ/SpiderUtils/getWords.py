@@ -4,46 +4,44 @@ import re
 import sys
 import urllib2
 import chardet
-from PyIO.writeWords import Write
-from enums import Language
 from Utils.logFactory import LogFactory
 import zlib
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 logger = LogFactory.getlogger("GetWords")
+
+
 class GetWords:
-   
+    @staticmethod
+    def get_chinese(html):
+        raw = GetWords.__get_unicode_content(html)
+        words = re.findall(ur"[\u4e00-\u9fa5]+", raw)
+        if words.__len__() == 0:
+            raise Exception, "cannot find any words"
+        return words
 
     @staticmethod
-    def getWords(url, language=Language.All):
-        operator = {Language.All: GetWords.getAll, Language.English: GetWords.getEnglish,
-                    Language.Chinese: GetWords.getChinese}
-        return operator.get(language)(url);
+    def get_english(html):
+        s = re.findall("\w+", str.lower(html))
+        return s
 
     @staticmethod
-    def getAll(url):
-        html = GetWords.__getContent(url);
-        GetWords.getChinese(url, html)
-        GetWords.getEnglish(url, html)
-        return html
+    def get_korean(html):
+        raw = GetWords.__get_unicode_content(html)
+        words = re.findall(ur"[\uAC00-\uD7AF]+", raw)
+        if words.__len__() == 0:
+            raise Exception, "cannot find any words"
+        return words
 
     @staticmethod
-    def getChinese(url, html=None):
-        if html is None:
-            html = GetWords.__getContent(url)
-        try:
-            words = GetWords.__getChinese(html)
-            Write.write(url, words)
-        except Exception, e:
-            logger.error(url + " " + str(e))
+    def get_by_regex(html,pattern):
+        ws = re.findall(pattern,html)
+        return ws
 
     @staticmethod
-    def getEnglish(url, html=None):
-        return html
-
-    @staticmethod
-    def __getChinese(html):
+    def __get_unicode_content(html):
         raw = html
         codec = chardet.detect(raw)
         try:
@@ -54,20 +52,4 @@ class GetWords:
         except Exception, e:
             logger.error(str(e))
             raise Exception, "undefined codec"
-        words = re.findall(ur"[\u4e00-\u9fa5]+", raw)
-        if words.__len__() == 0:
-            raise Exception, "cannot find any words"
-        return words
-
-    @staticmethod
-    def __getContent(url):
-        print url
-        request = urllib2.Request(url)
-        request.add_header('Accept-encoding', 'gzip')
-        opener = urllib2.build_opener()
-        response = opener.open(request)
-        html = response.read()
-        gzipped = response.headers.get('Content-Encoding')
-        if gzipped:
-            html = zlib.decompress(html, 16+zlib.MAX_WBITS)
-        return html
+        return raw

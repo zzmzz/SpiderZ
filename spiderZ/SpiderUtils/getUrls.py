@@ -4,6 +4,9 @@ from bs4 import BeautifulSoup
 import time, re, urllib2
 from urlparse import *
 from PyMemcached.Locks.bloomFilterLock import BloomFilterLock
+from Utils.logFactory import LogFactory
+
+logger = LogFactory.getlogger("UrlScan")
 
 
 class UrlScan:
@@ -23,5 +26,4 @@ class UrlScan:
                     results.append(u)
             return results
         except Exception, e:
-            print url
-            print e
+            logger.error("catch urls exception url: " + url + " error: " + str(e))

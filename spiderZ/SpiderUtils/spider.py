@@ -7,6 +7,7 @@ from Utils.logFactory import LogFactory
 from enums import Language
 from getUrls import UrlScan
 from spiderStrategy import SpiderStrategy
+from SpiderUtils.modeFactory import ModeFactory
 
 logger = LogFactory.getlogger("Spider")
 
@@ -15,35 +16,39 @@ class Spider:
     __isout = False
     __url = ""
     __depth = 1
-    __pattern = None
-    __language = Language.All
+    __url_pattern = None
+    __mode = None
 
     def __init__(self, strategy=SpiderStrategy()):
         self.__isout = strategy.is_out
         self.__url = strategy.url
         self.__depth = strategy.depth
-        self.__language = strategy.language
+        self.__mode = strategy.mode
         pattern = strategy.pattern
-        if (pattern == None):
-            if (strategy.is_out == False):
+        if pattern is None:
+            if strategy.is_out is False:
                 r = urlparse(strategy.url)
-                self.__pattern = 'http(\w|\W)*' + r.netloc
+                self.__url_pattern = 'http(\w|\W)*' + r.netloc
             else:
-                self.__pattern = None
+                self.__url_pattern = None
         else:
-            self.__pattern = pattern
+            self.__url_pattern = pattern
 
     def get_all_words(self, queue, lock):
-        html = GetWords.getWords(self.__url, self.__language)
-        if self.__depth > 1:
-            urllist = UrlScan.scanpage(html, self.__url, self.__isout, self.__pattern)
-            for link in urllist:
-                try:
-                    lock.acquire()
-                    logger.info("new strategy created:" + link)
-                    queue.put(SpiderStrategy(link, self.__depth - 1, self.__isout, self.__pattern, self.__language))
-                except Exception, e:
-                    logger.error(e)
-                finally:
-                    lock.release()
+        try:
+            mode = ModeFactory.get_mode(self.__mode)
+            html = mode.get_words(self.__url)
+            if self.__depth > 1:
+                urllist = UrlScan.scanpage(html, self.__url, self.__isout, self.__url_pattern)
+                for link in urllist:
+                    try:
+                        lock.acquire()
+                        logger.info("new strategy created:" + link)
+                        queue.put(SpiderStrategy(link, self.__depth - 1, self.__isout, self.__url_pattern, self.__mode))
+                    except Exception, e:
+                        logger.error(str(e))
+                    finally:
+                        lock.release()
+        except Exception, e:
+            logger.error(str(e))
         return

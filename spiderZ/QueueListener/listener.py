@@ -3,6 +3,9 @@ import time
 from ProcessPool.pool import PyPool
 from SpiderUtils.spider import Spider
 from Utils.logFactory import LogFactory
+from PyMemcached.Locks.processCntLock import ProcessCntReduce, ProcessCntIncrease
+from PyMemcached.memcacheUtil import MemcacheUtil
+from Consts.cacheKeyConstants import const
 
 
 class MyListener:
@@ -16,7 +19,6 @@ class MyListener:
 
     def listen(self, lock, queue):
         loop_flag = True
-        loop_cnt = 0
         while loop_flag:
             try:
                 lock.acquire()
@@ -24,7 +26,8 @@ class MyListener:
                 size = PyPool.limit if size > PyPool.limit else size
                 for num in range(0, size):
                     strategy = queue.get_nowait()
-                    self.__pool.apply_async(applySpider, (strategy, queue, lock))
+                    ProcessCntIncrease().lock_and_do()
+                    self.__pool.apply_async(apply_spider, (strategy, queue, lock), callback=callback)
             except Exception, e:
                 self.logger.error(e)
             finally:
@@ -32,17 +35,14 @@ class MyListener:
 
             try:
                 lock.acquire()
+                length = MemcacheUtil.get(const.PROCESSCNTKEY)
                 size = queue.qsize()
-                if size == 0:
-                    loop_cnt += 1
-                    self.logger.info("loopcnt:"+str(loop_cnt))
-                    time.sleep(2)
-                else:
-                    loop_cnt = 0
-                if loop_cnt > 100:
+                if size == 0 and length == 0:
                     loop_flag = False
+                else:
+                    time.sleep(3)
             except Exception, e:
-                self.logger.error(e)
+                self.logger.error(str(e))
             finally:
                 lock.release()
 
@@ -52,6 +52,11 @@ class MyListener:
         return
 
 
-def applySpider(strategy, queue, lock):
+def apply_spider(strategy, queue, lock):
     Spider(strategy).get_all_words(queue, lock)
+    return
+
+
+def callback(value):
+    ProcessCntReduce().lock_and_do()
     return
