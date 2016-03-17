@@ -8,6 +8,8 @@ from enums import Language
 from getUrls import UrlScan
 from spiderStrategy import SpiderStrategy
 
+logger = LogFactory.getlogger("Spider")
+
 
 class Spider:
     __isout = False
@@ -15,7 +17,6 @@ class Spider:
     __depth = 1
     __pattern = None
     __language = Language.All
-    logger = LogFactory.getlogger("Spider")
 
     def __init__(self, strategy=SpiderStrategy()):
         self.__isout = strategy.is_out
@@ -34,15 +35,15 @@ class Spider:
 
     def get_all_words(self, queue, lock):
         html = GetWords.getWords(self.__url, self.__language)
-        if (self.__depth > 1):
+        if self.__depth > 1:
             urllist = UrlScan.scanpage(html, self.__url, self.__isout, self.__pattern)
             for link in urllist:
                 try:
                     lock.acquire()
-                    self.logger.info("new strategy created:" + link)
+                    logger.info("new strategy created:" + link)
                     queue.put(SpiderStrategy(link, self.__depth - 1, self.__isout, self.__pattern, self.__language))
                 except Exception, e:
-                    self.logger.error(e)
+                    logger.error(e)
                 finally:
                     lock.release()
         return

@@ -11,9 +11,9 @@ import zlib
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-
+logger = LogFactory.getlogger("GetWords")
 class GetWords:
-    logger = LogFactory.getlogger("GetWords")
+   
 
     @staticmethod
     def getWords(url, language=Language.All):
@@ -36,7 +36,7 @@ class GetWords:
             words = GetWords.__getChinese(html)
             Write.write(url, words)
         except Exception, e:
-            GetWords.logger.error(url + " " + str(e))
+            logger.error(url + " " + str(e))
 
     @staticmethod
     def getEnglish(url, html=None):
@@ -52,7 +52,7 @@ class GetWords:
                 code = 'utf-8'
             raw = unicode(raw, code, 'ignore')
         except Exception, e:
-            GetWords.logger.error(str(e))
+            logger.error(str(e))
             raise Exception, "undefined codec"
         words = re.findall(ur"[\u4e00-\u9fa5]+", raw)
         if words.__len__() == 0:

@@ -1,7 +1,9 @@
 from PyMemcached.lockModel import LockModel
 from Consts.cacheKeyConstants import const
 from PyMemcached.memcacheUtil import MemcacheUtil
-
+from Utils.logFactory import LogFactory
+from SpiderUtils.bloomFilter import SpiderBloomFilter
+logger = LogFactory.getlogger("BloomFilterLock")
 
 class BloomFilterLock(LockModel):
     __url = None
@@ -11,10 +13,9 @@ class BloomFilterLock(LockModel):
         super(BloomFilterLock, self).__init__(const.URLWRITEKEY)
 
     def do(self):
-        pool = MemcacheUtil.get(const.URLPOOLKEY)
-        if (pool.exists(self.__url)):
+        if SpiderBloomFilter.exists(self.__url):
+            logger.debug("dup url: "+self.__url)
             return False
         else:
-            pool.mark_value(self.__url)
-            MemcacheUtil.set(const.URLPOOLKEY,pool)
+            logger.debug("access url: "+self.__url)
             return True

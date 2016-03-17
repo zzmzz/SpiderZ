@@ -13,13 +13,13 @@ class UrlScan:
             BloomFilterLock(url).lock_and_do()
             results = []
             soup = BeautifulSoup(html, "lxml")
-            if (pattern != None):
+            if pattern is not None:
                 pageurls = soup.find_all("a", href=re.compile(pattern))
             else:
                 pageurls = soup.find_all("a", href=re.compile('http'))
             for link in pageurls:
                 u = link.get("href")
-                if (BloomFilterLock(u).lock_and_do()):
+                if BloomFilterLock(u).lock_and_do():
                     results.append(u)
             return results
         except Exception, e:

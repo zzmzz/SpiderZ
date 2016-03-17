@@ -39,7 +39,7 @@ class MyListener:
                     time.sleep(2)
                 else:
                     loop_cnt = 0
-                if loop_cnt > 30:
+                if loop_cnt > 100:
                     loop_flag = False
             except Exception, e:
                 self.logger.error(e)
@@ -49,7 +49,6 @@ class MyListener:
         self.__pool.close()
         self.logger.info("start to wait for all processes")
         self.__pool.join()
-        #self.__pool.
         return
 
 
