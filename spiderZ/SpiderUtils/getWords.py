@@ -2,9 +2,9 @@
 # coding=utf-8
 import re
 import sys
-import urllib2
 import chardet
 from Utils.logFactory import LogFactory
+import urllib2
 import zlib
 
 reload(sys)
@@ -14,6 +14,9 @@ logger = LogFactory.getlogger("GetWords")
 
 
 class GetWords:
+    headers = headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'}
+
     @staticmethod
     def get_chinese(html):
         raw = GetWords.__get_unicode_content(html)
@@ -36,8 +39,8 @@ class GetWords:
         return words
 
     @staticmethod
-    def get_by_regex(html,pattern):
-        ws = re.findall(pattern,html)
+    def get_by_regex(html, pattern):
+        ws = re.findall(pattern, html)
         return ws
 
     @staticmethod
@@ -53,3 +56,24 @@ class GetWords:
             logger.error(str(e))
             raise Exception, "undefined codec"
         return raw
+
+    @staticmethod
+    def get_content(url):
+        print url
+        request = urllib2.Request(url, headers=GetWords.headers)
+        request.add_header('Accept-encoding', 'gzip')
+        opener = urllib2.build_opener()
+        response = opener.open(request)
+        html = response.read()
+        gzipped = response.headers.get('Content-Encoding')
+        if gzipped:
+            html = zlib.decompress(html, 16 + zlib.MAX_WBITS)
+        return html
+
+    @staticmethod
+    def try_connect(url):
+        request = urllib2.Request(url, headers=GetWords.headers)
+        request.add_header('Accept-encoding', 'gzip')
+        opener = urllib2.build_opener()
+        response = opener.open(request).getcode()
+        return response

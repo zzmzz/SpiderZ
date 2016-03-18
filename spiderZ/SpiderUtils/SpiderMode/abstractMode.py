@@ -2,8 +2,7 @@
 # coding=utf-8
 from abc import ABCMeta, abstractmethod
 import sys
-import urllib2
-import zlib
+from SpiderUtils.getWords import GetWords
 from Utils.logFactory import LogFactory
 from PyIO.pyMongoUtil import PyMongoUtil
 
@@ -19,20 +18,8 @@ class AbstractMode:
     def __init__(self):
         pass
 
-    def _get_content(self, url):
-        print url
-        request = urllib2.Request(url)
-        request.add_header('Accept-encoding', 'gzip')
-        opener = urllib2.build_opener()
-        response = opener.open(request)
-        html = response.read()
-        gzipped = response.headers.get('Content-Encoding')
-        if gzipped:
-            html = zlib.decompress(html, 16 + zlib.MAX_WBITS)
-        return html
-
     def get_words(self, url):
-        html = self._get_content(url)
+        html = GetWords.get_content(url)
         try:
             words = self.catch_words(html)
             wlist = []

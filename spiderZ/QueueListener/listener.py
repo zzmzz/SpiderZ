@@ -6,13 +6,15 @@ from Utils.logFactory import LogFactory
 from PyMemcached.Locks.processCntLock import ProcessCntReduce, ProcessCntIncrease
 from PyMemcached.memcacheUtil import MemcacheUtil
 from Consts.cacheKeyConstants import const
+from Utils.logFactory import LogFactory
+
+logger = LogFactory.getlogger("MyListener")
 
 
 class MyListener:
     __lock = None
     __queue = None
     __wait_cnt = 10
-    logger = LogFactory.getlogger("MyListener")
 
     def __init__(self):
         self.__pool = PyPool.get_pool()
@@ -27,9 +29,9 @@ class MyListener:
                 for num in range(0, size):
                     strategy = queue.get_nowait()
                     ProcessCntIncrease().lock_and_do()
-                    self.__pool.apply_async(apply_spider, (strategy, queue, lock), callback=callback)
+                    self.__pool.apply_async(apply_spider, (strategy, queue, lock))
             except Exception, e:
-                self.logger.error(e)
+                logger.error(e)
             finally:
                 lock.release()
 
@@ -42,21 +44,26 @@ class MyListener:
                 else:
                     time.sleep(3)
             except Exception, e:
-                self.logger.error(str(e))
+                logger.error(str(e))
             finally:
                 lock.release()
 
         self.__pool.close()
-        self.logger.info("start to wait for all processes")
+        logger.info("start to wait for all processes")
         self.__pool.join()
         return
 
 
 def apply_spider(strategy, queue, lock):
-    Spider(strategy).get_all_words(queue, lock)
+    try:
+        Spider(strategy).get_all_words(queue, lock)
+    except BaseException, e:
+        logger.error(str(e))
+    finally:
+        run_after_end()
     return
 
 
-def callback(value):
+def run_after_end():
     ProcessCntReduce().lock_and_do()
     return
