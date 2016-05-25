@@ -28,7 +28,7 @@ class Spider:
         if pattern is None:
             if strategy.is_out is False:
                 r = urlparse(strategy.url)
-                self.__url_pattern = 'http(\w|\W)*' + r.netloc
+                self.__url_pattern = r.netloc
             else:
                 self.__url_pattern = None
         else:
@@ -39,7 +39,7 @@ class Spider:
             mode = ModeFactory.get_mode(self.__mode)
             html = mode.get_words(self.__url)
             if self.__depth > 1:
-                urllist = UrlScan.scanpage(html, self.__url, self.__isout, self.__url_pattern)
+                urllist = UrlScan.scanpage(html, self.__url, self.__url_pattern)
                 for link in urllist:
                     try:
                         lock.acquire()

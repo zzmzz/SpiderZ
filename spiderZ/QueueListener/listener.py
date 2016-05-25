@@ -39,7 +39,7 @@ class MyListener:
                 lock.acquire()
                 length = MemcacheUtil.get(const.PROCESSCNTKEY)
                 size = queue.qsize()
-                if size == 0 and length == 0:
+                if size == 0 and (length is None or length == 0):
                     loop_flag = False
                 else:
                     time.sleep(3)
