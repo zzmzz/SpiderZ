@@ -8,7 +8,7 @@ class WordCount:
 
     mapper = Code("""
         function() {
-            emit(this.content, {count: 1});
+            emit(this.content, 1);
         }
     """)
 
@@ -16,9 +16,9 @@ class WordCount:
         function(key, values) {
             var sum = 0;
             values.forEach(function(value) {
-                sum += value['count'];
+                sum += Number(value);
             });
-            return {count:sum};
+            return sum;
         };
     """)
 
