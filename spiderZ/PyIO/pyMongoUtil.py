@@ -24,6 +24,16 @@ class PyMongoUtil():
             client.close()
 
     @staticmethod
+    def query_result(count = None):
+        client = PyMongoUtil.__get_client()
+        collection = PyMongoUtil.__get_data_statics_collection(client)
+        if count!= None:
+            result_list = collection.find().sort(key_or_list="value",direction=pymongo.DESCENDING).limit(count)
+        else:
+            result_list = collection.find().sort(key_or_list="value",direction=pymongo.DESCENDING)
+        return result_list;
+
+    @staticmethod
     def __get_client():
         ip = Config.getProperty('mongo', 'addr')
         port = int(Config.getProperty('mongo', 'port'))
@@ -34,4 +44,10 @@ class PyMongoUtil():
     def __get_data_save_collection(client):
         db = client.get_database(Config.getProperty('mongo','resultdb'))
         cl = db.get_collection(Config.getProperty('mongo','resultcollection'))
+        return cl
+
+    @staticmethod
+    def __get_data_statics_collection(client):
+        db = client.get_database(Config.getProperty('mongo','resultdb'))
+        cl = db.get_collection(Config.getProperty('mongo','statisticCollection'))
         return cl

@@ -12,6 +12,8 @@ from Utils.logFactory import LogFactory
 from SpiderUtils.SpiderMode.regexMode import Regex
 from SpiderUtils.enums import Language
 from SpiderUtils.getWords import GetWords
+from PyIO.excelUtil import ExcelUtil
+from os import path
 
 logger = LogFactory.getlogger("main")
 
@@ -85,3 +87,20 @@ s = SpiderStrategy(url, int(depth), isOut, None, mode)
 Spider(s).get_all_words(queue, lock)
 listener.listen(lock, queue)
 WordCount.calc_count()
+
+while True:
+    query_count = raw_input("Spider Finished. please enter how many statistics you want.[All]\n")
+    file_path = raw_input("Please input the path you want to put result.csv.\n")
+    if not path.isdir(file_path):
+        print("Please enter the right path.\n")
+        continue
+    if query_count == None or query_count == '':
+        ExcelUtil.writefile(file_path, PyMongoUtil.query_result())
+    elif not query_count.isdigit():
+        print("Please enter the right query count.\n")
+        continue
+    else:
+        ExcelUtil.writefile(file_path, PyMongoUtil.query_result(int(query_count)))
+    print("Generate success. Please check the result! Bye\n")
+    break
+
