@@ -1,0 +1,6 @@
+pymongo == 3.2
+chardet == 2.3.0
+jieba == 0.38
+beautifulsoup4 == 4.4.1
+python_memcached == 1.58
+pybloomfiltermmap == 0.3.15
